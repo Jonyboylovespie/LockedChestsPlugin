@@ -1,5 +1,5 @@
 name: LockedChestsPlugin
-version: '1.3'
+version: '1.4'
 main: jonyboylovespie.lockedchestplugin.lockedChestsPlugin.LockedChestsPlugin
 api-version: '1.21'
 commands:
@@ -12,3 +12,7 @@ commands:
   lockinspect:
     description: Inspect owner.
     usage: /lockinspect
+permissions:
+  lockedchests.admin.bypass:
+    description: Allows removing locks from containers without owning them.
+    default: op
