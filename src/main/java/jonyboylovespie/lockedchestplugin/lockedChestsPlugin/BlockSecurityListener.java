@@ -2,6 +2,7 @@ package jonyboylovespie.lockedchestplugin.lockedChestsPlugin;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.TileState;
 import org.bukkit.command.Command;
@@ -35,6 +36,7 @@ public class BlockSecurityListener implements Listener, CommandExecutor
         trustedKey = new NamespacedKey(plugin, "trusted");
         this.plugin.getCommand("trust").setExecutor(this);
         this.plugin.getCommand("lockchest").setExecutor(this);
+        this.plugin.getCommand("forceopen").setExecutor(this);
         this.plugin.getCommand("lockinspect").setExecutor(this);
     }
 
@@ -180,6 +182,26 @@ public class BlockSecurityListener implements Listener, CommandExecutor
         player.sendMessage(ChatColor.GREEN + "Unlocking " + getContainerType(state).toLowerCase() + ".");
     }
 
+    private void handleForceOpen(Player player, TileState state)
+    {
+        if (!hasBypassPermission(player))
+        {
+            player.sendMessage(ChatColor.RED + "You do not have permission to force open locked containers.");
+            return;
+        }
+        if (!(state instanceof Container container))
+        {
+            player.sendMessage(ChatColor.RED + "You must be looking at a container.");
+            return;
+        }
+        if (getOwner(state) == null)
+        {
+            player.sendMessage(ChatColor.RED + "This " + getContainerType(state).toLowerCase() + " is not locked.");
+            return;
+        }
+        player.openInventory(container.getInventory());
+    }
+
     // Block Checking methods
 
     public static boolean isChest(Block block)
@@ -290,6 +312,7 @@ public class BlockSecurityListener implements Listener, CommandExecutor
         if (!(sender instanceof Player player)) return false;
         if (command.getName().equalsIgnoreCase("trust")) return handleTrustCommand(player, args);
         if (command.getName().equalsIgnoreCase("lockchest")) return handleLockChestCommand(player, args);
+        if (command.getName().equalsIgnoreCase("forceopen")) return handleForceOpenCommand(player, args);
         if (command.getName().equalsIgnoreCase("lockinspect")) return handleLockInspectCommand(player, args);
         return false;
     }
@@ -385,6 +408,20 @@ public class BlockSecurityListener implements Listener, CommandExecutor
             return true;
         }
         handleRemoveLock(player, state);
+        return true;
+    }
+
+    private boolean handleForceOpenCommand(Player player, String[] args)
+    {
+        if (args.length != 0) return false;
+        Block block = player.getTargetBlockExact(5);
+        if (block == null || !isChest(block))
+        {
+            player.sendMessage(ChatColor.RED + "You must be looking at a container.");
+            return true;
+        }
+        TileState state = (TileState) block.getState();
+        handleForceOpen(player, state);
         return true;
     }
 

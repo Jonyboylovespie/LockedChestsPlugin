@@ -9,10 +9,13 @@ commands:
   lockchest:
     description: Lock or unlock a chest.
     usage: /lockchest <add|remove>
+  forceopen:
+    description: Force open a locked chest.
+    usage: /forceopen
   lockinspect:
     description: Inspect owner.
     usage: /lockinspect
 permissions:
   lockedchests.admin.bypass:
-    description: Allows removing locks from containers without owning them.
+    description: Allows removing locks and force opening locked containers without owning them.
     default: op
